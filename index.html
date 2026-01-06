@@ -19,15 +19,23 @@
       @media print {
         @page {
           margin: 0;
-          size: A4;
+          size: A4 portrait;
         }
 
-        /* Oculta interface do app */
-        .no-print {
+        /* Oculta interface do app completamente */
+        .no-print, 
+        aside, 
+        button, 
+        .no-print * {
           display: none !important;
+          visibility: hidden !important;
+          height: 0 !important;
+          width: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
 
-        /* Reseta estrutura para impressão */
+        /* Reseta estrutura para impressão pura */
         html, body {
           background: white !important;
           margin: 0 !important;
@@ -43,9 +51,10 @@
           width: 210mm !important;
           display: block !important;
           height: auto !important;
+          min-height: 100% !important;
         }
 
-        /* Força a área de impressão a ocupar a folha corretamente sem deslocamentos */
+        /* Garante que a área de impressão ocupe a folha sem deslocamentos */
         .print-area {
           display: block !important;
           width: 210mm !important;
@@ -63,10 +72,11 @@
           print-color-adjust: exact !important;
         }
 
-        /* Garante que itens das etiquetas não sejam cortados no meio da página */
+        /* Garante que itens não sejam cortados entre páginas */
         .break-inside-avoid {
           page-break-inside: avoid !important;
           break-inside: avoid !important;
+          display: block !important;
         }
       }
       

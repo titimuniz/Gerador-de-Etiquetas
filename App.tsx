@@ -120,17 +120,17 @@ export default function App() {
           </div>
 
           {/* Botão de Imprimir Fixo ao Lado (Apenas visualização em tela) */}
-          <div className="no-print lg:sticky lg:top-12 flex flex-col items-center gap-4 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 min-w-[200px]">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Controles</p>
+          <div className="no-print lg:sticky lg:top-12 flex flex-col items-center gap-4 bg-white p-4 rounded-xl shadow-lg border border-gray-100 min-w-[160px]">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Controles</p>
             <button 
               onClick={handlePrint}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-8 rounded-xl shadow-lg flex items-center justify-center gap-3 transition-all transform active:scale-95 hover:scale-105 whitespace-nowrap"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-95 hover:scale-105 whitespace-nowrap"
             >
-              <Printer size={28} />
-              <span className="text-xl">IMPRIMIR</span>
+              <Printer size={20} />
+              <span className="text-lg">IMPRIMIR</span>
             </button>
-            <p className="text-[10px] text-gray-400 text-center max-w-[150px]">
-              O sistema gera automaticamente as páginas extras se as etiquetas não couberem em uma folha.
+            <p className="text-[9px] text-gray-400 text-center max-w-[130px] leading-tight">
+              O sistema gera automaticamente páginas extras se necessário.
             </p>
           </div>
 
