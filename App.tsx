@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { MenuPaper } from './components/MenuPaper';
 import { LabelsPaper } from './components/LabelsPaper';
-import { MenuItem } from './types';
+import { SebraePaper } from './components/SebraePaper';
+import { MenuItem, FontSettings, SebraeConfig } from './types';
 import { database } from './services/database';
 import { Printer } from 'lucide-react';
+import { THEME_COLOR } from './constants';
 
 export default function App() {
   const [items, setItems] = useState<MenuItem[]>(() => {
-    return database.loadItems();
+    const loadedItems = database.loadItems();
+    // Ensure all loaded items have a quantity field
+    return loadedItems.map(item => ({
+      ...item,
+      quantity: item.quantity || 1
+    }));
   });
 
   const [logo, setLogo] = useState<string | null>(null);
@@ -17,7 +24,19 @@ export default function App() {
   });
   
   const [title, setTitle] = useState<string>('Coffee Break');
-  const [layoutMode, setLayoutMode] = useState<'menu' | 'labels' | 'labels-32'>('menu');
+  const [layoutMode, setLayoutMode] = useState<'menu' | 'labels' | 'labels-32' | 'sebrae'>('menu');
+  
+  const [fontSettings, setFontSettings] = useState<FontSettings>({
+    family: "'League Spartan', sans-serif",
+    size: 24,
+    color: THEME_COLOR,
+    isBold: true,
+    isUppercase: true
+  });
+
+  const [sebraeConfig, setSebraeConfig] = useState<SebraeConfig>({
+    rowColors: ['#f37021', '#00a651', '#0054a6', '#ed1c24']
+  });
 
   useEffect(() => {
     database.saveItems(items);
@@ -36,10 +55,33 @@ export default function App() {
   const handleAddItem = (name: string) => {
     const newItem: MenuItem = {
       id: Date.now().toString(),
-      name: name,
-      selected: true
+      name: name.trim(),
+      selected: true,
+      quantity: 1
     };
     setItems(prev => [newItem, ...prev]);
+  };
+
+  const handleDeselectAll = () => {
+    setItems(prev => prev.map(item => ({ ...item, selected: false })));
+  };
+
+  const handleBulkAdd = (text: string) => {
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    const newItems: MenuItem[] = lines.map((name, index) => ({
+      id: (Date.now() + index).toString(),
+      name: name,
+      selected: true,
+      quantity: 1
+    }));
+    
+    setItems(prev => [...newItems, ...prev]);
+  };
+
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    setItems(prev => prev.map(item => 
+      item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+    ));
   };
 
   const handleDeleteItem = (id: string) => {
@@ -85,9 +127,12 @@ export default function App() {
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 font-sans">
       <Sidebar 
         items={items}
-        onToggleItem={handleToggleItem}
+        onToggleItem= {handleToggleItem}
         onAddItem={handleAddItem}
+        onBulkAdd={handleBulkAdd}
+        onDeselectAll={handleDeselectAll}
         onDeleteItem={handleDeleteItem}
+        onUpdateQuantity={handleUpdateQuantity}
         onLogoUpload={handleLogoUpload}
         onTitleChange={setTitle}
         currentTitle={title}
@@ -96,30 +141,43 @@ export default function App() {
         onBackgroundUpload={handleBackgroundUpload}
         onClearBackground={handleClearBackground}
         hasBackground={!!menuBackground}
+        fontSettings={fontSettings}
+        onFontSettingsChange={setFontSettings}
+        sebraeConfig={sebraeConfig}
+        onSebraeConfigChange={setSebraeConfig}
       />
       
       <main className="flex-1 overflow-auto p-4 lg:p-12 flex flex-col items-center justify-start relative">
         <div className="relative flex flex-col lg:flex-row items-start gap-8">
           
-          {/* Área do Papel A4 com classe de impressão */}
           <div className="shadow-2xl bg-white print-area">
-            {layoutMode === 'menu' ? (
+            {layoutMode === 'menu' && (
                 <MenuPaper 
                   logo={logo}
                   items={items}
                   title={title}
                   backgroundImage={menuBackground}
+                  fontSettings={fontSettings}
                 />
-            ) : (
+            )}
+            {layoutMode === 'sebrae' && (
+                <SebraePaper 
+                  logo={logo}
+                  items={items}
+                  fontSettings={fontSettings}
+                  sebraeConfig={sebraeConfig}
+                />
+            )}
+            {(layoutMode === 'labels' || layoutMode === 'labels-32') && (
                 <LabelsPaper 
                   logo={logo}
                   items={items}
                   mode={layoutMode}
+                  fontSettings={fontSettings}
                 />
             )}
           </div>
 
-          {/* Botão de Imprimir Fixo ao Lado (Apenas visualização em tela) */}
           <div className="no-print lg:sticky lg:top-12 flex flex-col items-center gap-4 bg-white p-4 rounded-xl shadow-lg border border-gray-100 min-w-[160px]">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Controles</p>
             <button 

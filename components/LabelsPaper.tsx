@@ -1,43 +1,43 @@
 import React from 'react';
-import { MenuItem } from '../types';
-import { THEME_COLOR } from '../constants';
+import { MenuItem, FontSettings } from '../types';
 
 interface LabelsPaperProps {
   logo: string | null;
   items: MenuItem[];
   mode?: 'labels' | 'labels-32';
+  fontSettings: FontSettings;
 }
 
-export const LabelsPaper: React.FC<LabelsPaperProps> = ({ logo, items, mode = 'labels' }) => {
+export const LabelsPaper: React.FC<LabelsPaperProps> = ({ logo, items, mode = 'labels', fontSettings }) => {
   const isSmall = mode === 'labels-32';
   const baseItems = items.filter(i => i.selected);
 
-  const displayItems = isSmall 
-    ? baseItems.flatMap(item => [
-        { ...item, id: `${item.id}-1` },
-        { ...item, id: `${item.id}-2` },
-        { ...item, id: `${item.id}-3` },
-        { ...item, id: `${item.id}-4` }
-      ])
-    : baseItems;
+  // Cada item selecionado gera o número de cópias definido em item.quantity
+  const displayItems = baseItems.flatMap(item => 
+    Array.from({ length: item.quantity || 1 }).map((_, i) => ({
+      ...item,
+      id: `${item.id}-${i}`
+    }))
+  );
 
+  // Grid com gap para etiquetas pequenas
   const gridClasses = isSmall 
-    ? "grid grid-cols-4"
+    ? "grid grid-cols-4 gap-2 p-4"
     : "grid grid-cols-3 gap-1 p-8";
 
-  // Altura calculada para caber aproximadamente 8 linhas na folha A4 (37mm x 8 = 296mm)
-  const itemHeightClass = isSmall 
-    ? "h-[37mm]" 
-    : "aspect-[4/3] mb-4";
+  // Altura ajustada para compensar o novo gap e padding no modo de 32 etiquetas
+  const itemHeightStyle = isSmall 
+    ? { height: '34.2mm' } 
+    : { minHeight: '150px', aspectRatio: '4/3' };
 
   return (
     <div 
       className="bg-white relative mx-auto"
       style={{ 
         width: '210mm',
-        minHeight: '297mm', // Altura mínima de uma folha A4, cresce se necessário
-        color: THEME_COLOR,
-        padding: isSmall ? '0' : '0',
+        minHeight: '297mm',
+        color: fontSettings.color,
+        padding: '0',
         boxSizing: 'border-box'
       }}
     >
@@ -45,13 +45,17 @@ export const LabelsPaper: React.FC<LabelsPaperProps> = ({ logo, items, mode = 'l
         {displayItems.map((item, index) => (
           <div 
             key={`${item.id}-${index}`}
-            className={`flex flex-col items-center justify-between bg-white text-center break-inside-avoid relative p-2 border border-gray-100 ${itemHeightClass}`}
+            className={`flex flex-col items-center justify-between bg-white text-center break-inside-avoid relative p-3 border mb-0 ${!isSmall ? 'mb-4' : ''} rounded-sm shadow-sm`}
             style={{ 
-              borderColor: isSmall ? '#f3f4f6' : THEME_COLOR,
-              borderWidth: isSmall ? '0.5px' : '4px'
+              ...itemHeightStyle,
+              borderColor: fontSettings.color,
+              borderWidth: isSmall ? '2px' : '4px',
+              borderStyle: 'solid',
+              boxSizing: 'border-box'
             }}
           >
-            <div className={`flex-shrink-0 w-full flex items-center justify-center ${isSmall ? 'h-6 mb-1' : 'h-16 mb-2'}`}>
+            {/* Logo area */}
+            <div className={`flex-shrink-0 w-full flex items-center justify-center ${isSmall ? 'h-8 mb-1' : 'h-16 mb-2'}`}>
               {logo ? (
                 <img src={logo} alt="Logo" className="h-full object-contain max-w-[90%]" />
               ) : (
@@ -61,14 +65,16 @@ export const LabelsPaper: React.FC<LabelsPaperProps> = ({ logo, items, mode = 'l
               )}
             </div>
 
-            <div className="flex-grow flex flex-col items-center justify-center w-full overflow-hidden">
+            {/* Item Name area */}
+            <div className="flex-grow flex flex-col items-center justify-center w-full overflow-hidden px-1">
               <h3 
-                className="font-bold uppercase leading-tight"
+                className="leading-tight"
                 style={{ 
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: isSmall 
-                        ? (item.name.length > 20 ? '0.65rem' : '0.85rem')
-                        : (item.name.length > 25 ? '1.1rem' : '1.5rem')
+                    fontFamily: fontSettings.family,
+                    fontSize: isSmall ? `${Math.max(12, fontSettings.size - 8)}px` : `${fontSettings.size}px`,
+                    fontWeight: fontSettings.isBold ? 'bold' : 'normal',
+                    textTransform: fontSettings.isUppercase ? 'uppercase' : 'none',
+                    color: fontSettings.color
                 }}
               >
                 {item.name}
@@ -77,6 +83,7 @@ export const LabelsPaper: React.FC<LabelsPaperProps> = ({ logo, items, mode = 'l
           </div>
         ))}
       </div>
+      
       {displayItems.length === 0 && (
          <div className="absolute inset-0 flex items-center justify-center opacity-30 italic">
             Nenhum item selecionado para as etiquetas.

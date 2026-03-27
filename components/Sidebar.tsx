@@ -1,27 +1,45 @@
 import React, { useState } from 'react';
-import { MenuItem } from '../types';
-import { Upload, Plus, Check, Trash2, Search, Database, Grid, FileText, LayoutGrid, Image as ImageIcon, X } from 'lucide-react';
+import { MenuItem, FontSettings, SebraeConfig } from '../types';
+import { Upload, Plus, Check, Trash2, Search, Database, Grid, FileText, LayoutGrid, Image as ImageIcon, X, ListPlus, Square, FoldVertical, Type, Bold, CaseUpper, Languages, Palette } from 'lucide-react';
 
 interface SidebarProps {
   items: MenuItem[];
   onToggleItem: (id: string) => void;
   onAddItem: (name: string) => void;
+  onBulkAdd: (text: string) => void;
+  onDeselectAll: () => void;
   onDeleteItem: (id: string) => void;
+  onUpdateQuantity: (id: string, quantity: number) => void;
   onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTitleChange: (title: string) => void;
   currentTitle: string;
-  layoutMode: 'menu' | 'labels' | 'labels-32';
-  onLayoutChange: (mode: 'menu' | 'labels' | 'labels-32') => void;
+  layoutMode: 'menu' | 'labels' | 'labels-32' | 'sebrae';
+  onLayoutChange: (mode: 'menu' | 'labels' | 'labels-32' | 'sebrae') => void;
   onBackgroundUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClearBackground?: () => void;
   hasBackground?: boolean;
+  fontSettings: FontSettings;
+  onFontSettingsChange: (settings: FontSettings) => void;
+  sebraeConfig: SebraeConfig;
+  onSebraeConfigChange: (config: SebraeConfig) => void;
 }
+
+const AVAILABLE_FONTS = [
+  { name: 'League Spartan', value: "'League Spartan', sans-serif" },
+  { name: 'Montserrat', value: "'Montserrat', sans-serif" },
+  { name: 'Playfair Display', value: "'Playfair Display', serif" },
+  { name: 'Great Vibes (Script)', value: "'Great Vibes', cursive" },
+  { name: 'Sans-Serif Padrão', value: "sans-serif" },
+];
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   items, 
   onToggleItem, 
   onAddItem, 
+  onBulkAdd,
+  onDeselectAll,
   onDeleteItem,
+  onUpdateQuantity,
   onLogoUpload,
   onTitleChange,
   currentTitle,
@@ -29,10 +47,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLayoutChange,
   onBackgroundUpload,
   onClearBackground,
-  hasBackground
+  hasBackground,
+  fontSettings,
+  onFontSettingsChange,
+  sebraeConfig,
+  onSebraeConfigChange
 }) => {
   const [newItemName, setNewItemName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [bulkText, setBulkText] = useState('');
+  const [showBulk, setShowBulk] = useState(false);
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +64,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
       onAddItem(newItemName);
       setNewItemName('');
     }
+  };
+
+  const handleBulkSubmit = () => {
+    if (bulkText.trim()) {
+      onBulkAdd(bulkText);
+      setBulkText('');
+      setShowBulk(false);
+    }
+  };
+
+  const updateFont = (updates: Partial<FontSettings>) => {
+    onFontSettingsChange({ ...fontSettings, ...updates });
+  };
+
+  const updateSebraeColor = (index: number, color: string) => {
+    const newColors = [...sebraeConfig.rowColors];
+    newColors[index] = color;
+    onSebraeConfigChange({ ...sebraeConfig, rowColors: newColors });
   };
 
   const filteredItems = items.filter(item => 
@@ -69,6 +111,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
                 
                 <button 
+                    onClick={() => onLayoutChange('sebrae')}
+                    className={`flex items-center justify-start px-4 py-3 rounded-lg border transition-all ${layoutMode === 'sebrae' ? 'bg-orange-50 border-orange-500 text-orange-700 shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    <FoldVertical size={18} className="mr-3" />
+                    <div className="text-left">
+                        <span className="font-medium text-sm block">Modelo SEBRAE</span>
+                        <span className="text-xs opacity-75">16 p/ folha • Cores por linha</span>
+                    </div>
+                </button>
+
+                <button 
                     onClick={() => onLayoutChange('labels')}
                     className={`flex items-center justify-start px-4 py-3 rounded-lg border transition-all ${layoutMode === 'labels' ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                 >
@@ -89,10 +142,106 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
         </div>
 
+        {/* Cores SEBRAE (Apenas se SEBRAE selecionado) */}
+        {layoutMode === 'sebrae' && (
+          <div className="space-y-4 bg-white p-4 rounded-xl border border-orange-200 shadow-sm">
+            <label className="block text-sm font-semibold text-orange-700 uppercase tracking-wide flex items-center gap-2">
+              Cores das Linhas SEBRAE <Palette size={14}/>
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {[0, 1, 2, 3].map((idx) => (
+                <div key={idx} className="space-y-1">
+                  <p className="text-[10px] text-gray-400 uppercase font-bold">Linha {idx + 1}</p>
+                  <input 
+                    type="color" 
+                    value={sebraeConfig.rowColors[idx]}
+                    onChange={(e) => updateSebraeColor(idx, e.target.value)}
+                    className="w-full h-8 rounded border border-gray-200 cursor-pointer p-0 overflow-hidden"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Estilização Section */}
+        <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+            2. Estilização do Texto <Type size={14}/>
+          </label>
+          
+          <div className="space-y-4">
+            {/* Seletor de Fonte */}
+            <div className="space-y-1">
+               <p className="text-[10px] text-gray-400 uppercase font-bold flex items-center gap-1">
+                 <Languages size={10} /> Fonte Principal
+               </p>
+               <select 
+                 value={fontSettings.family}
+                 onChange={(e) => updateFont({ family: e.target.value })}
+                 className="w-full p-2 border border-gray-200 rounded bg-gray-50 text-xs focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
+               >
+                 {AVAILABLE_FONTS.map(f => (
+                   <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                     {f.name}
+                   </option>
+                 ))}
+               </select>
+            </div>
+
+            {/* Cor e Tamanho na mesma linha */}
+            <div className="flex items-center gap-4">
+               <div className="flex-1">
+                 <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Cor Geral</p>
+                 <div className="flex items-center gap-2">
+                   <input 
+                     type="color" 
+                     value={fontSettings.color}
+                     onChange={(e) => updateFont({ color: e.target.value })}
+                     className="w-8 h-8 rounded border border-gray-200 cursor-pointer p-0 overflow-hidden"
+                   />
+                   <span className="text-xs text-gray-600 font-mono uppercase">{fontSettings.color}</span>
+                 </div>
+               </div>
+               
+               <div className="flex-1">
+                 <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Tamanho ({fontSettings.size}px)</p>
+                 <input 
+                   type="range" 
+                   min="12" 
+                   max="60" 
+                   value={fontSettings.size}
+                   onChange={(e) => updateFont({ size: parseInt(e.target.value) })}
+                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                 />
+               </div>
+            </div>
+
+            {/* Negrito e Case */}
+            <div className="flex gap-2">
+              <button 
+                onClick={() => updateFont({ isBold: !fontSettings.isBold })}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded border transition-all ${fontSettings.isBold ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}
+              >
+                <Bold size={16} />
+                <span className="text-xs font-bold">Negrito</span>
+              </button>
+              
+              <button 
+                onClick={() => updateFont({ isUppercase: !fontSettings.isUppercase })}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded border transition-all ${fontSettings.isUppercase ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}
+              >
+                <CaseUpper size={16} />
+                <span className="text-xs font-bold">Maiúsculas</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Logo Section */}
         <div className="space-y-3">
           <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            2. Logo da Empresa
+            3. Logo da Empresa
           </label>
           <div className="flex items-center justify-center w-full">
             <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -110,7 +259,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
                     <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                        3. Fundo do Cardápio
+                        4. Fundo do Cardápio
                     </label>
                     {hasBackground && onClearBackground && (
                         <button onClick={onClearBackground} className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
@@ -136,7 +285,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {layoutMode === 'menu' && (
             <div className="space-y-3">
             <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                4. Título do Cabeçalho
+                5. Título do Cabeçalho
             </label>
             <input 
                 type="text" 
@@ -149,30 +298,67 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Items Section */}
-        <div className="space-y-4">
-          <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-            {layoutMode === 'menu' ? '5.' : '3.'} Banco de Pratos <Database size={14} className="text-gray-400"/>
-          </label>
+        <div className="space-y-4 pb-12">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+              {layoutMode === 'menu' ? '6.' : '4.'} Banco de Pratos <Database size={14} className="text-gray-400"/>
+            </label>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={onDeselectAll}
+                className="text-[10px] bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded transition-colors flex items-center gap-1 border border-red-100"
+                title="Desmarcar todos os itens"
+              >
+                <Square size={10} /> Limpar Seleção
+              </button>
+              <button 
+                onClick={() => setShowBulk(!showBulk)}
+                className="text-[10px] bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded transition-colors flex items-center gap-1"
+              >
+                <ListPlus size={10} /> {showBulk ? 'Fechar' : 'Importar Lista'}
+              </button>
+            </div>
+          </div>
           
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
-            <p className="text-xs text-blue-800 mb-2 font-medium">Cadastrar Novo Prato:</p>
-            <form onSubmit={handleAddSubmit} className="flex gap-2">
-              <input 
-                type="text"
-                value={newItemName}
-                onChange={(e) => setNewItemName(e.target.value)}
-                placeholder="Nome do prato..."
-                className="flex-1 p-2 border border-blue-200 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          {showBulk ? (
+            <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 space-y-2">
+              <p className="text-[10px] text-amber-800 font-bold uppercase">Colar Lista de Itens (um por linha):</p>
+              <textarea 
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                rows={5}
+                className="w-full p-2 text-xs border border-amber-200 rounded focus:ring-2 focus:ring-amber-500 outline-none resize-none"
+                placeholder="Água&#10;Café&#10;Sanduíche de Frango..."
               />
               <button 
-                type="submit"
-                disabled={!newItemName.trim()}
-                className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                onClick={handleBulkSubmit}
+                disabled={!bulkText.trim()}
+                className="w-full bg-amber-600 text-white py-2 rounded text-xs font-bold hover:bg-amber-700 disabled:opacity-50 transition-colors"
               >
-                <Plus size={20} />
+                ADICIONAR TODOS OS ITENS
               </button>
-            </form>
-          </div>
+            </div>
+          ) : (
+            <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+              <p className="text-xs text-blue-800 mb-2 font-medium">Cadastrar Novo Prato:</p>
+              <form onSubmit={handleAddSubmit} className="flex gap-2">
+                <input 
+                  type="text"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  placeholder="Nome do prato..."
+                  className="flex-1 p-2 border border-blue-200 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <button 
+                  type="submit"
+                  disabled={!newItemName.trim()}
+                  className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  <Plus size={20} />
+                </button>
+              </form>
+            </div>
+          )}
 
           <hr className="border-gray-100 my-2"/>
 
@@ -205,6 +391,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {item.name}
                     </span>
                   </div>
+
+                  {item.selected && layoutMode !== 'menu' && (
+                    <div className="flex items-center gap-1 mr-2 bg-white border border-blue-200 rounded px-1 py-0.5 shadow-sm">
+                      <span className="text-[9px] font-bold text-blue-400 uppercase">Qtd:</span>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="99"
+                        value={item.quantity || 1}
+                        onChange={(e) => onUpdateQuantity(item.id, parseInt(e.target.value) || 1)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-8 text-center text-xs font-bold text-blue-700 focus:outline-none bg-transparent"
+                      />
+                    </div>
+                  )}
+
                   <button 
                     onClick={() => onDeleteItem(item.id)}
                     className="text-gray-300 hover:text-red-500 p-1 transition-colors"

@@ -1,6 +1,5 @@
 import React from 'react';
-import { MenuItem } from '../types';
-import { THEME_COLOR } from '../constants';
+import { MenuItem, FontSettings } from '../types';
 import { ChefHat, Wheat, Coffee, Utensils, Croissant } from 'lucide-react';
 
 interface MenuPaperProps {
@@ -8,9 +7,10 @@ interface MenuPaperProps {
   items: MenuItem[];
   title: string;
   backgroundImage?: string | null;
+  fontSettings: FontSettings;
 }
 
-export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgroundImage }) => {
+export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgroundImage, fontSettings }) => {
   const selectedItems = items.filter(i => i.selected);
 
   return (
@@ -19,7 +19,7 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
       style={{ 
         width: '210mm',
         minHeight: '297mm',
-        color: THEME_COLOR,
+        color: fontSettings.color,
         padding: '2rem',
         boxSizing: 'border-box'
       }}
@@ -37,10 +37,10 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
 
       {!backgroundImage && (
         <>
-            <div className="absolute inset-4 border-4 border-double pointer-events-none opacity-80" style={{ borderColor: THEME_COLOR }}></div>
-            <div className="absolute inset-2 border-2 border-dashed pointer-events-none opacity-40" style={{ borderColor: THEME_COLOR }}></div>
-            <div className="absolute top-0 left-0 w-32 h-32 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle at top left, ${THEME_COLOR}, transparent 70%)` }}></div>
-            <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle at bottom right, ${THEME_COLOR}, transparent 70%)` }}></div>
+            <div className="absolute inset-4 border-4 border-double pointer-events-none opacity-80" style={{ borderColor: fontSettings.color }}></div>
+            <div className="absolute inset-2 border-2 border-dashed pointer-events-none opacity-40" style={{ borderColor: fontSettings.color }}></div>
+            <div className="absolute top-0 left-0 w-32 h-32 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle at top left, ${fontSettings.color}, transparent 70%)` }}></div>
+            <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20 pointer-events-none" style={{ background: `radial-gradient(circle at bottom right, ${fontSettings.color}, transparent 70%)` }}></div>
         </>
       )}
 
@@ -58,13 +58,13 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
           <div className="text-center">
             <h1 
               className="text-7xl mt-4 drop-shadow-sm" 
-              style={{ fontFamily: "'Great Vibes', cursive" }}
+              style={{ fontFamily: "'Great Vibes', cursive", color: fontSettings.color }}
             >
               {title || 'Cardápio'}
             </h1>
           </div>
           
-          <div className="w-24 h-1 rounded-full opacity-60" style={{ backgroundColor: THEME_COLOR }}></div>
+          <div className="w-24 h-1 rounded-full opacity-60" style={{ backgroundColor: fontSettings.color }}></div>
         </div>
 
         <div className="flex-grow flex flex-col items-center justify-center w-full my-8">
@@ -72,8 +72,14 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
             {selectedItems.map((item) => (
               <div 
                 key={item.id} 
-                className="text-lg md:text-xl font-bold uppercase tracking-wider leading-tight"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+                className="tracking-wider leading-tight"
+                style={{ 
+                    fontFamily: fontSettings.family,
+                    fontSize: `${fontSettings.size}px`,
+                    fontWeight: fontSettings.isBold ? 'bold' : 'normal',
+                    textTransform: fontSettings.isUppercase ? 'uppercase' : 'none',
+                    color: fontSettings.color
+                }}
               >
                 {item.name}
               </div>
@@ -82,7 +88,7 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
         </div>
 
         {!backgroundImage && (
-            <div className="w-full relative h-48 mt-4 flex items-end justify-between opacity-90">
+            <div className="w-full relative h-48 mt-4 flex items-end justify-between opacity-90" style={{ color: fontSettings.color }}>
                 <div className="flex items-end -ml-4">
                     <Wheat size={120} strokeWidth={1} style={{ transform: 'rotate(-15deg)' }} />
                     <Croissant size={80} strokeWidth={1.5} className="-ml-12 mb-2" />
