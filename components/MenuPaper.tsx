@@ -18,9 +18,9 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
       className={`relative mx-auto flex flex-col items-center overflow-hidden ${!backgroundImage ? 'paper-texture bg-white' : 'bg-white'}`}
       style={{ 
         width: '210mm',
-        minHeight: '297mm',
+        height: '297mm',
         color: fontSettings.color,
-        padding: '2rem',
+        padding: '10mm',
         boxSizing: 'border-box'
       }}
     >
@@ -44,31 +44,31 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
         </>
       )}
 
-      <div className="z-10 w-full h-full flex flex-col items-center justify-between py-12 px-12 relative flex-grow">
+      <div className="z-10 w-full h-full flex flex-col items-center justify-between py-8 px-8 relative flex-grow">
         
-        <div className="flex flex-col items-center w-full space-y-4">
+        <div className="flex flex-col items-center w-full space-y-2">
           {logo ? (
-            <img src={logo} alt="Logo" className="h-24 object-contain max-w-[200px]" />
+            <img src={logo} alt="Logo" className="h-20 object-contain max-w-[180px]" />
           ) : (
-            <div className="h-24 w-48 border-2 border-dashed flex items-center justify-center opacity-30 text-sm bg-white/50">
+            <div className="h-20 w-40 border-2 border-dashed flex items-center justify-center opacity-30 text-xs bg-white/50">
               Logo Empresa
             </div>
           )}
           
           <div className="text-center">
             <h1 
-              className="text-7xl mt-4 drop-shadow-sm" 
+              className="text-6xl mt-2 drop-shadow-sm" 
               style={{ fontFamily: "'Great Vibes', cursive", color: fontSettings.color }}
             >
               {title || 'Cardápio'}
             </h1>
           </div>
           
-          <div className="w-24 h-1 rounded-full opacity-60" style={{ backgroundColor: fontSettings.color }}></div>
+          <div className="w-16 h-1 rounded-full opacity-60" style={{ backgroundColor: fontSettings.color }}></div>
         </div>
 
-        <div className="flex-grow flex flex-col items-center justify-center w-full my-8">
-          <div className="space-y-4 text-center w-full">
+        <div className="flex-grow flex flex-col items-center justify-center w-full my-4">
+          <div className="space-y-3 text-center w-full">
             {selectedItems.map((item) => (
               <div 
                 key={item.id} 
@@ -88,18 +88,18 @@ export const MenuPaper: React.FC<MenuPaperProps> = ({ logo, items, title, backgr
         </div>
 
         {!backgroundImage && (
-            <div className="w-full relative h-48 mt-4 flex items-end justify-between opacity-90" style={{ color: fontSettings.color }}>
-                <div className="flex items-end -ml-4">
-                    <Wheat size={120} strokeWidth={1} style={{ transform: 'rotate(-15deg)' }} />
-                    <Croissant size={80} strokeWidth={1.5} className="-ml-12 mb-2" />
+            <div className="w-full relative h-32 mt-2 flex items-end justify-between opacity-90" style={{ color: fontSettings.color }}>
+                <div className="flex items-end -ml-2">
+                    <Wheat size={100} strokeWidth={1} style={{ transform: 'rotate(-15deg)' }} />
+                    <Croissant size={60} strokeWidth={1.5} className="-ml-10 mb-2" />
                 </div>
-                <div className="flex flex-col items-center mb-4 opacity-50">
-                    <Utensils size={40} />
-                    <span className="text-xs uppercase mt-2 tracking-widest">Bom Apetite</span>
+                <div className="flex flex-col items-center mb-2 opacity-50">
+                    <Utensils size={32} />
+                    <span className="text-[10px] uppercase mt-1 tracking-widest">Bom Apetite</span>
                 </div>
-                <div className="flex items-end -mr-4">
-                    <Coffee size={70} strokeWidth={1} className="mr-[-20px] mb-4" />
-                    <ChefHat size={130} strokeWidth={1} style={{ transform: 'rotate(10deg)' }} />
+                <div className="flex items-end -mr-2">
+                    <Coffee size={60} strokeWidth={1} className="mr-[-15px] mb-3" />
+                    <ChefHat size={110} strokeWidth={1} style={{ transform: 'rotate(10deg)' }} />
                 </div>
             </div>
         )}

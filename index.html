@@ -16,6 +16,33 @@
         padding: 0;
       }
 
+      /* Área de visualização que simula o papel A4 */
+      .print-area {
+        background: white;
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+        transform-origin: top center;
+        transition: transform 0.3s ease;
+      }
+
+      @media (max-width: 1024px) {
+        .print-area {
+          transform: scale(0.8);
+        }
+      }
+      @media (max-width: 768px) {
+        .print-area {
+          transform: scale(0.6);
+        }
+      }
+      @media (max-width: 480px) {
+        .print-area {
+          transform: scale(0.4);
+        }
+      }
+
       @media print {
         @page {
           margin: 0;

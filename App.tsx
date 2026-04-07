@@ -150,7 +150,7 @@ export default function App() {
       <main className="flex-1 overflow-auto p-4 lg:p-12 flex flex-col items-center justify-start relative">
         <div className="relative flex flex-col lg:flex-row items-start gap-8">
           
-          <div className="shadow-2xl bg-white print-area">
+          <div className="print-area">
             {layoutMode === 'menu' && (
                 <MenuPaper 
                   logo={logo}
