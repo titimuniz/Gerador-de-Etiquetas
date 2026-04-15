@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar';
 import { MenuPaper } from './components/MenuPaper';
 import { LabelsPaper } from './components/LabelsPaper';
 import { SebraePaper } from './components/SebraePaper';
+import { PrismaPaper } from './components/PrismaPaper';
 import { MenuItem, FontSettings, SebraeConfig } from './types';
 import { database } from './services/database';
 import { Printer } from 'lucide-react';
@@ -24,7 +25,7 @@ export default function App() {
   });
   
   const [title, setTitle] = useState<string>('Coffee Break');
-  const [layoutMode, setLayoutMode] = useState<'menu' | 'labels' | 'labels-32' | 'sebrae'>('menu');
+  const [layoutMode, setLayoutMode] = useState<'menu' | 'labels' | 'labels-32' | 'sebrae' | 'prisma'>('menu');
   
   const [fontSettings, setFontSettings] = useState<FontSettings>({
     family: "'League Spartan', sans-serif",
@@ -162,6 +163,14 @@ export default function App() {
             )}
             {layoutMode === 'sebrae' && (
                 <SebraePaper 
+                  logo={logo}
+                  items={items}
+                  fontSettings={fontSettings}
+                  sebraeConfig={sebraeConfig}
+                />
+            )}
+            {layoutMode === 'prisma' && (
+                <PrismaPaper 
                   logo={logo}
                   items={items}
                   fontSettings={fontSettings}

@@ -13,8 +13,8 @@ interface SidebarProps {
   onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTitleChange: (title: string) => void;
   currentTitle: string;
-  layoutMode: 'menu' | 'labels' | 'labels-32' | 'sebrae';
-  onLayoutChange: (mode: 'menu' | 'labels' | 'labels-32' | 'sebrae') => void;
+  layoutMode: 'menu' | 'labels' | 'labels-32' | 'sebrae' | 'prisma';
+  onLayoutChange: (mode: 'menu' | 'labels' | 'labels-32' | 'sebrae' | 'prisma') => void;
   onBackgroundUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClearBackground?: () => void;
   hasBackground?: boolean;
@@ -122,6 +122,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
 
                 <button 
+                    onClick={() => onLayoutChange('prisma')}
+                    className={`flex items-center justify-start px-4 py-3 rounded-lg border transition-all ${layoutMode === 'prisma' ? 'bg-purple-50 border-purple-500 text-purple-700 shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    <FoldVertical size={18} className="mr-3" />
+                    <div className="text-left">
+                        <span className="font-medium text-sm block">Display Prisma (3 lados)</span>
+                        <span className="text-xs opacity-75">12 p/ folha • Base para mesa</span>
+                    </div>
+                </button>
+
+                <button 
                     onClick={() => onLayoutChange('labels')}
                     className={`flex items-center justify-start px-4 py-3 rounded-lg border transition-all ${layoutMode === 'labels' ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                 >
@@ -142,11 +153,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
         </div>
 
-        {/* Cores SEBRAE (Apenas se SEBRAE selecionado) */}
-        {layoutMode === 'sebrae' && (
-          <div className="space-y-4 bg-white p-4 rounded-xl border border-orange-200 shadow-sm">
-            <label className="block text-sm font-semibold text-orange-700 uppercase tracking-wide flex items-center gap-2">
-              Cores das Linhas SEBRAE <Palette size={14}/>
+        {/* Cores SEBRAE (Apenas se SEBRAE ou Prisma selecionado) */}
+        {(layoutMode === 'sebrae' || layoutMode === 'prisma') && (
+          <div className={`space-y-4 bg-white p-4 rounded-xl border shadow-sm ${layoutMode === 'prisma' ? 'border-purple-200' : 'border-orange-200'}`}>
+            <label className={`block text-sm font-semibold uppercase tracking-wide flex items-center gap-2 ${layoutMode === 'prisma' ? 'text-purple-700' : 'text-orange-700'}`}>
+              Cores das Linhas {layoutMode === 'prisma' ? 'Prisma' : 'SEBRAE'} <Palette size={14}/>
             </label>
             <div className="grid grid-cols-2 gap-3">
               {[0, 1, 2, 3].map((idx) => (
